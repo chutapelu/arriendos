@@ -74,3 +74,24 @@ def eliminar_user(rut:str):
     eliminar = User.objects.get(username=rut)
     eliminar.delete()
     return True
+
+def editar_user_sin_password(rut:str, first_name:str, last_name:str, email:str, direccion:str, rol:str, telefono:str=None):
+    user = User.objects.get(username=rut)
+    user.first_name = first_name
+    user.last_name = last_name
+    user.email = email
+    user.save()
+    user_profile = UserProfile.objects.get(user=user)
+    user_profile.direccion = direccion
+    user_profile.telefono_personal = telefono
+    user_profile.rol = rol
+    user_profile.save()
+
+def cambio_password(request, password:str, password_repeat:str):
+    if password != password_repeat:
+        messages.warning(request, 'Las contraseñas no coinciden')
+        return False
+    request.user.set_password(password)
+    request.user.save()
+    messages.success(request, 'Contraseña actualizada exitosamente')
+    return True
