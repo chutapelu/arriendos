@@ -89,3 +89,9 @@ def profile(request):
             return redirect('/accounts/profile')
     else:
         return render(request, 'profile.html', context)
+    
+def change_pass(request):
+    password = request.POST['password']
+    password_repeat = request.POST['password_repeat']
+    cambio_password(request, password, password_repeat)
+    return redirect('/accounts/profile')
