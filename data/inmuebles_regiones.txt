@@ -1,2 +1,2 @@
-Nombre: Casa R煤stica || Descripci贸n: Casa de campo con chimenea || Regi贸n: De Valpara铆so
-Nombre: Casa de Campo || Descripci贸n: Casa con amplio terreno || Regi贸n: Del Maule
+Nombre: Casa Familiar || Descripci髇: Amplia casa para toda la familia || Regi髇: De Valpara韘o
+Nombre: Casa Familiar Grande || Descripci髇: Casa espaciosa para toda la familia || Regi髇: De La Araucan韆

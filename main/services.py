@@ -95,3 +95,51 @@ def cambio_password(request, password:str, password_repeat:str):
     request.user.save()
     messages.success(request, 'Contraseña actualizada exitosamente')
     return True
+
+def obtener_propiedades_comunas(filtro): # recibe nombre o descripción
+    if filtro is None:  
+        return Inmueble.objects.all().order_by('comuna') # Entrega un objeto, al poner .value() entrega un diccionario
+    # Si llegamos, hay un filtro
+    return Inmueble.objects.filter(Q(nombre__icontains=filtro) | Q(descripcion__icontains=filtro) ).order_by('comuna')  
+
+
+def obtener_propiedades_regiones(filtro):
+    consulta = '''
+    select I.nombre, I.descripcion, R.nombre as region from main_inmueble as I
+    join main_comuna as C on I.comuna_id = C.cod
+    join main_region as R on C.region_id = R.cod
+    order by R.cod;
+    '''
+    if filtro is not None:
+        filtro = filtro.lower()
+        consulta = f'''
+        select I.nombre, I.descripcion, R.nombre as region from main_inmueble as I
+        join main_comuna as C on I.comuna_id = C.cod
+        join main_region as R on C.region_id = R.cod where lower(I.nombre) like '%{filtro}%' or lower(I.descripcion) like '%{filtro}%'
+        order by R.cod;
+        '''
+    cursor = connection.cursor()
+    cursor.execute(consulta)
+    registros = cursor.fetchall() # LAZY LOADING
+    return registros
+
+
+def filtro_comuna_region(comuna_cod, region_cod, tipo_inmueble):
+    query = Q() # Se crear un objeto Q vacío para acumular los filtros
+
+    if tipo_inmueble:
+        query &= Q(tipo_de_inmueble__icontains=tipo_inmueble)
+
+    if comuna_cod:
+        comuna = Comuna.objects.get(cod=comuna_cod)
+        query &= Q(comuna=comuna)
+    elif region_cod:
+        region = Region.objects.get(cod=region_cod)
+        comunas = Comuna.objects.filter(region=region)
+        query &= Q(comuna__in=comunas)
+
+    if not query:
+        return Inmueble.objects.all()
+
+    # Si llega, se retornan los filtros acomulados
+    return Inmueble.objects.filter(query).order_by('comuna')
